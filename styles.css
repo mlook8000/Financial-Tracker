@@ -1,104 +1,110 @@
 :root {
-  --pink-100: #ffd6f0;
-  --pink-200: #ffb8e2;
-  --pink-300: #ff96d1;
-  --pink-700: #a61065;
-  --text: #3b0830;
+  --pink-50: #fff4fb;
+  --pink-100: #ffe1f3;
+  --pink-200: #ffc5e9;
+  --pink-300: #ff9dd7;
+  --pink-500: #f947aa;
+  --pink-700: #b21776;
+  --text: #3d1230;
   --white: #fff;
+  --shadow: 0 20px 45px rgba(178, 23, 118, 0.15);
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at top right, #ffeefe, #ffd1ea 40%, #ffc6e5);
+  background: linear-gradient(145deg, #ffeefe, #ffd3eb 35%, #ffc0e1);
   min-height: 100vh;
 }
 
-.sparkles {
+.bg-glow {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 2px),
-    radial-gradient(circle, rgba(255,255,255,0.7) 1.2px, transparent 2px),
-    radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 2px);
-  background-size: 140px 140px, 180px 180px, 220px 220px;
-  animation: twinkle 9s linear infinite;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,0.7), transparent 32%),
+    radial-gradient(circle at 85% 8%, rgba(255,255,255,0.55), transparent 28%),
+    radial-gradient(circle at 60% 75%, rgba(255,255,255,0.45), transparent 25%);
 }
 
-@keyframes twinkle {
-  0% { transform: translateY(0); opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { transform: translateY(-12px); opacity: 0.8; }
-}
-
-header, footer {
-  text-align: center;
-  padding: 1rem;
+.app-shell {
   position: relative;
   z-index: 1;
-}
-
-main {
-  max-width: 980px;
-  margin: 0 auto;
+  max-width: 1200px;
+  margin: 1.25rem auto;
+  padding: 1rem;
   display: grid;
+  grid-template-columns: 320px 1fr;
   gap: 1rem;
-  padding: 1rem;
-  position: relative;
-  z-index: 1;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.87);
-  border: 2px solid var(--pink-200);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--pink-200);
   border-radius: 18px;
+  box-shadow: var(--shadow);
   padding: 1rem;
-  box-shadow: 0 12px 30px rgba(166, 16, 101, 0.12);
 }
 
-label { display: block; margin-bottom: .8rem; font-weight: 600; }
+.sidebar h1 { margin: .3rem 0; font-size: 1.8rem; }
+.subtitle { margin-top: 0; color: #7d3a63; }
+
+.quick-stats { display: grid; gap: .7rem; margin-top: 1rem; }
+.quick-stats div {
+  background: var(--pink-50);
+  border: 1px solid var(--pink-200);
+  border-radius: 12px;
+  padding: .75rem;
+}
+.quick-stats span { display: block; font-size: .85rem; color: #924a77; }
+.quick-stats strong { font-size: 1.15rem; }
+
+.main-grid { display: grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 1rem; }
+.stack { display: grid; gap: .7rem; }
+label { font-weight: 600; display: block; }
 input, select, textarea, button {
   width: 100%;
   margin-top: .35rem;
-  padding: .65rem;
-  border-radius: 10px;
+  padding: .68rem;
+  border-radius: 11px;
   border: 1px solid var(--pink-300);
   font: inherit;
+  background: #fff;
 }
-
 button {
-  background: linear-gradient(135deg, #ff74bf, #ff4aa8);
-  color: var(--white);
   border: none;
+  color: var(--white);
   font-weight: 700;
   cursor: pointer;
+  background: linear-gradient(130deg, var(--pink-700), var(--pink-500));
 }
+button:hover { filter: brightness(1.06); }
 
-button:hover { filter: brightness(1.08); }
-
-.totals-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: .75rem;
-}
-
+.totals-grid { display: grid; gap: .6rem; }
 .total-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem;
+  border-radius: 11px;
   background: var(--pink-100);
-  border-radius: 10px;
-  padding: .7rem;
+  border: 1px solid var(--pink-200);
 }
+.total-item small { color: #7f4468; }
 
 .result { font-weight: 700; }
 .ai-response {
   white-space: pre-wrap;
-  background: #fff0fa;
+  min-height: 90px;
+  background: #fff7fc;
   border: 1px dashed var(--pink-300);
   border-radius: 10px;
-  min-height: 80px;
   padding: .8rem;
 }
 
-.helper-text { margin-top: 0; }
+@media (max-width: 960px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .main-grid { grid-template-columns: 1fr; }
+}

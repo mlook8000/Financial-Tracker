@@ -7,6 +7,8 @@ const defaultAccounts = {
   "Roth IRA (Robinhood)": 0,
 };
 
+const money = (value) => `$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 function loadAccounts() {
   const stored = JSON.parse(localStorage.getItem("sparkle_accounts") || "null");
   return stored ? { ...defaultAccounts, ...stored } : { ...defaultAccounts };
@@ -21,22 +23,26 @@ function renderAccounts() {
   const container = document.getElementById("totals");
   container.innerHTML = "";
 
+  let assets = 0;
+  let debt = 0;
+
   Object.entries(accounts).forEach(([name, value]) => {
+    const amount = Number(value || 0);
+    const isDebt = name.startsWith("Credit Card");
+
+    if (isDebt) debt += Math.abs(amount);
+    else assets += amount;
+
     const div = document.createElement("div");
     div.className = "total-item";
-    div.innerHTML = `<strong>${name}</strong><br>$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    div.innerHTML = `<span><strong>${name}</strong><br><small>${isDebt ? "Liability" : "Asset"}</small></span><strong>${money(amount)}</strong>`;
     container.appendChild(div);
   });
 
-  const netWorth = Object.entries(accounts).reduce((sum, [name, amount]) => {
-    const val = Number(amount || 0);
-    return name.startsWith("Credit Card") ? sum - Math.abs(val) : sum + val;
-  }, 0);
-
-  const nw = document.createElement("div");
-  nw.className = "total-item";
-  nw.innerHTML = `<strong>Estimated Net Worth</strong><br>$${netWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  container.appendChild(nw);
+  const netWorth = assets - debt;
+  document.getElementById("assets-total").textContent = money(assets);
+  document.getElementById("debt-total").textContent = money(debt);
+  document.getElementById("net-total").textContent = money(netWorth);
 }
 
 document.getElementById("account-form").addEventListener("submit", (event) => {
@@ -47,7 +53,6 @@ document.getElementById("account-form").addEventListener("submit", (event) => {
   accounts[name] = balance;
   saveAccounts(accounts);
   renderAccounts();
-  event.target.reset();
 });
 
 document.getElementById("budget-form").addEventListener("submit", (event) => {
@@ -56,65 +61,57 @@ document.getElementById("budget-form").addEventListener("submit", (event) => {
   const needs = parseFloat(document.getElementById("needs").value || "0");
   const wants = parseFloat(document.getElementById("wants").value || "0");
   const savingsInvest = parseFloat(document.getElementById("savings-invest").value || "0");
+  const output = document.getElementById("budget-health");
 
-  const totalSpent = needs + wants + savingsInvest;
-  const percentNeeds = (needs / income) * 100;
-  const percentWants = (wants / income) * 100;
-  const percentSavings = (savingsInvest / income) * 100;
-
-  let message = `50/30/20 check → Needs: ${percentNeeds.toFixed(0)}%, Wants: ${percentWants.toFixed(0)}%, Savings+Invest: ${percentSavings.toFixed(0)}%.`;
-
-  if (totalSpent > income) {
-    message += " You're over budget. Trim wants first and revisit debt payments.";
-  } else {
-    message += " Great job staying inside your monthly income.";
+  if (income <= 0) {
+    output.textContent = "Please enter a monthly income above $0.";
+    return;
   }
 
-  document.getElementById("budget-health").textContent = message;
+  const totalSpent = needs + wants + savingsInvest;
+  const pctNeeds = (needs / income) * 100;
+  const pctWants = (wants / income) * 100;
+  const pctSavings = (savingsInvest / income) * 100;
+
+  let message = `Needs ${pctNeeds.toFixed(0)}% · Wants ${pctWants.toFixed(0)}% · Savings/Investing ${pctSavings.toFixed(0)}%.`;
+  if (totalSpent > income) message += " Over budget: cut wants first and prioritize high-interest debt payoff.";
+  else message += " On track: keep building emergency fund + long-term investments.";
+
+  output.textContent = message;
 });
 
 document.getElementById("ask-ai").addEventListener("click", async () => {
   const apiKey = document.getElementById("api-key").value.trim();
   const prompt = document.getElementById("ai-prompt").value.trim();
   const out = document.getElementById("ai-response");
+
   if (!apiKey || !prompt) {
     out.textContent = "Please add your API key and a question.";
     return;
   }
 
+  out.textContent = "Thinking...";
   const accounts = loadAccounts();
-  out.textContent = "Asking AI coach...";
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4.1-mini",
         input: [
-          {
-            role: "system",
-            content:
-              "You are a practical personal finance coach. Give non-professional educational guidance only, concise and actionable.",
-          },
-          {
-            role: "user",
-            content: `My current balances are ${JSON.stringify(accounts)}. ${prompt}`,
-          },
+          { role: "system", content: "You are a practical personal finance coach. Give educational, concise, step-by-step guidance." },
+          { role: "user", content: `My balances are ${JSON.stringify(accounts)}. ${prompt}` },
         ],
       }),
     });
 
-    if (!response.ok) {
-      throw new Error(`API error ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`API error ${response.status}`);
     const data = await response.json();
-    const text = data.output_text || "No response text returned.";
-    out.textContent = text;
+    out.textContent = data.output_text || "No response text returned.";
   } catch (error) {
     out.textContent = `Could not reach AI API: ${error.message}`;
   }
