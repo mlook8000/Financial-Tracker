@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sparkle Finance Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="sparkles" aria-hidden="true"></div>
+  <header>
+    <h1>💖 Sparkle Finance Tracker</h1>
+    <p>Budget, invest, and track every account in one pink, sparkly place.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Accounts Overview</h2>
+      <div id="totals" class="totals-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Manage Accounts</h2>
+      <form id="account-form">
+        <label>
+          Account Type
+          <select id="account-name" required>
+            <option value="Savings">Savings</option>
+            <option value="Checking">Checking</option>
+            <option value="Credit Card (Capital One)">Credit Card (Capital One)</option>
+            <option value="HYSA (Capital One)">HYSA (Capital One)</option>
+            <option value="Investments (Robinhood)">Investments (Robinhood)</option>
+            <option value="Roth IRA (Robinhood)">Roth IRA (Robinhood)</option>
+          </select>
+        </label>
+        <label>
+          Current Balance ($)
+          <input id="account-balance" type="number" step="0.01" required />
+        </label>
+        <button type="submit">Save Account</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Monthly Budget Planner</h2>
+      <form id="budget-form">
+        <label>Monthly Income ($)<input id="income" type="number" step="0.01" required /></label>
+        <label>Needs ($)<input id="needs" type="number" step="0.01" required /></label>
+        <label>Wants ($)<input id="wants" type="number" step="0.01" required /></label>
+        <label>Savings & Investments ($)<input id="savings-invest" type="number" step="0.01" required /></label>
+        <button type="submit">Calculate Budget Health</button>
+      </form>
+      <p id="budget-health" class="result"></p>
+    </section>
+
+    <section class="card">
+      <h2>AI Finance Coach ✨</h2>
+      <p class="helper-text">Use your own OpenAI API key for personalized investing and mortgage-start guidance.</p>
+      <label>OpenAI API Key<input id="api-key" type="password" placeholder="sk-..." /></label>
+      <label>Your question
+        <textarea id="ai-prompt" rows="4" placeholder="Example: Based on my balances, how should I allocate savings, investing, and prepare for a first mortgage down payment?"></textarea>
+      </label>
+      <button id="ask-ai" type="button">Ask AI Coach</button>
+      <pre id="ai-response" class="ai-response"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <small>Made with glitter, discipline, and compounding returns.</small>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
